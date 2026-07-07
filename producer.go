@@ -2,11 +2,10 @@ package main
 
 import (
 	"encoding/csv"
-	"fmt"
 	"os"
 )
 
-func loadRecipient(filePath string) error {
+func loadRecipient(filePath string, ch chan Recipient) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return err
@@ -19,7 +18,11 @@ func loadRecipient(filePath string) error {
 	}
 
 	for _, record := range records[1:] {
-		fmt.Println(record)
+		// send -> consumer -> channels
+		ch <- Recipient{
+			Name:  record[0],
+			Email: record[1],
+		}
 	}
 
 	return nil
