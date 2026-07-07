@@ -10,6 +10,7 @@ func loadRecipient(filePath string, ch chan Recipient) error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	r := csv.NewReader(f)
 	records, err := r.ReadAll()
