@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type Recipient struct {
 	Name  string
@@ -10,8 +13,20 @@ type Recipient struct {
 func main() {
 	recipientChannel := make(chan Recipient)
 
-	err := loadRecipient("./emails.csv",recipientChannel)
-	if err != nil {
-		fmt.Printf("error in file operation")
+	go func() {
+		err := loadRecipient("./emails.csv", recipientChannel)
+		if err != nil {
+			fmt.Printf("error in file operation")
+		}
+	}()
+
+	var wg sync.WaitGroup
+	workerCount := 5
+
+	for i := 1; i <= workerCount; i++ {
+		wg.Add(1)
+		go emailWorker(i, recipientChannel, &wg)
 	}
+
+	wg.Wait()
 }
